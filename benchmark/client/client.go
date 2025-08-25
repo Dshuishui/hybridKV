@@ -107,6 +107,9 @@ func batchRawPut(value []byte, getRatio int, myKvc KVClient, pools []pool.Pool, 
 	base := *onums / *cnums
 	wg.Add(*cnums)
 	nodeNumIndex := nodeNum -1 // 减去一个节点，避免连接池的地址和节点一一对应
+	if nodeNumIndex <= 0 {
+        nodeNumIndex = 1
+    }
 
 	for i := 0; i < *cnums; i++ {
 
