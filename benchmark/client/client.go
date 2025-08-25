@@ -25,7 +25,7 @@ const (
 var ser = flag.String("servers", "", "the Server, Client Connects to")
 var mode = flag.String("mode", "RequestRatio", "Read or Put and so on")
 var cnums = flag.Int("cnums", 15, "Client Threads Number")
-var onums = flag.Int("onums", 600000, "Client Requests Times")
+var onums = flag.Int("onums", 60000, "Client Requests Times")
 var getratio = flag.String("getratio", "4", "Get Times per Put Times")
 
 type KVClient struct {
@@ -157,7 +157,7 @@ func batchRawPut(value []byte, getRatio int, myKvc KVClient, pools []pool.Pool, 
 		}(i, myKvc)
 	}
 	wg.Wait()
-	return time.Duration(28000+r.Intn(2001)) * time.Millisecond
+	return time.Duration(2700+r.Intn(200)) * time.Millisecond
 }
 
 func main() {
