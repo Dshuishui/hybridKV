@@ -1,0 +1,8 @@
+[0;34m🔍 检查测试环境...[0m
+[0;32m✅ Docker environment OK[0m
+[0;34m🔍 检查Docker镜像...[0m
+[0;32m✅ Docker镜像 'hybrid-kv-store:latest' 已存在[0m
+[1;33m[2025-07-12 00:17:22] 🔄 第 1/2 轮测试[0m
+[0;34m🚀 开始执行: [0;32m测试轮次 1[0m
+[1;33m执行命令:[0m docker run --rm --network host hybrid-kv-store:latest
+[1;33m客户端参数:[0m go run ./benchmark/client/client.go -servers "127.0.0.1:3088"

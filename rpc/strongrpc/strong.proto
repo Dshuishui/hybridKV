@@ -1,0 +1,29 @@
+syntax = "proto3";
+ 
+option go_package="./;strongrpc";
+
+/* 
+    this rpc is only for strong consistency between nodes(2PC)
+*/
+
+service STRONG {
+  rpc PreCommit(PreCommitRequest) returns (PreCommitResponse) {}
+  rpc Commit(CommitRequest) returns (CommitResponse) {}
+}
+
+message PreCommitRequest {
+  bytes      map_lattice = 1;
+}
+
+message PreCommitResponse {
+  bool       success = 1;
+}
+
+message CommitRequest {
+  string key = 1;
+  bool rollback = 2;
+}
+
+message CommitResponse {
+  bool       success = 1;
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+ 
+option go_package="./;eventualrpc";
+
+/* 
+    this rpc is only for eventual consistency between nodes
+*/
+
+service EVENTUAL {
+  rpc AppendEntriesInEventual (AppendEntriesInEventualRequest) 
+  returns (AppendEntriesInEventualResponse) {}
+}
+ 
+message AppendEntriesInEventualRequest{
+  bytes      map_lattice = 1;
+  int32      version = 2;   // version of the log.value
+}
+
+message AppendEntriesInEventualResponse{
+  bool       success = 1;
+}

@@ -1,0 +1,39 @@
+# 使用轻量级的alpine镜像
+FROM alpine:latest
+
+# 安装必要的包
+RUN apk --no-cache add ca-certificates
+
+# 创建非root用户
+RUN adduser -D -s /bin/sh kvuser
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制本地编译好的二进制文件
+COPY kvserver .
+
+# 复制配置文件目录
+COPY config ./config
+
+# 复制测试客户端源码
+COPY benchmark ./benchmark
+COPY go.mod go.sum ./
+
+# 检查文件是否复制成功
+RUN ls -la /app
+
+# 给二进制文件执行权限
+RUN chmod +x kvserver
+
+# 创建data目录并设置权限
+RUN mkdir -p data && chown -R kvuser:kvuser /app
+
+# 切换到非root用户
+USER kvuser
+
+# 暴露端口
+EXPOSE 3088 30881
+
+# 设置启动命令
+ENTRYPOINT ["./kvserver"]
