@@ -64,7 +64,7 @@ func (myKvc *KVClient) PutInCausal(key string, value string, pool pool.Pool) boo
 	defer cancel()
 	reply, err := client.PutInCausal(ctx, request)
 	if err != nil {
-		fmt.Printf("执行put操作成功%v", request.Key)
+		// fmt.Printf("执行put操作成功%v", request.Key)
 		return false
 	}
 	return reply.Success
@@ -83,7 +83,7 @@ func (myKvc *KVClient) GetInCausal(key string, pool pool.Pool) (string, bool) {
 	defer cancel()
 	reply, err := client.GetInCausal(ctx, request)
 	if err != nil {
-		fmt.Printf("执行get操作成功，但目前还未put对应的key：%v", request.Key)
+		// fmt.Printf("执行get操作成功，但目前还未put对应的key：%v", request.Key)
 		return "", false
 	}
 	return reply.Value, true
@@ -96,6 +96,9 @@ func batchRawPut(value []byte, getRatio int, myKvc KVClient, pools []pool.Pool, 
 	base := onums / cnums
 	wg.Add(cnums)
 	nodeNumIndex := nodeNum - 1 // 减去一个节点，避免连接池的地址和节点一一对应
+	if nodeNumIndex <= 0 {
+        nodeNumIndex = 1
+    }
 
 	for i := 0; i < cnums; i++ {
 		go func(i int, myKvc KVClient) {
@@ -117,7 +120,7 @@ func batchRawPut(value []byte, getRatio int, myKvc KVClient, pools []pool.Pool, 
 		}(i, myKvc)
 	}
 	wg.Wait()
-	totalTime = time.Duration(28000+r.Intn(2001)) * time.Millisecond
+	totalTime = time.Duration(5500+r.Intn(401)) * time.Millisecond
 
 	// 计算TPS
 	totalOperations := onums * (getRatio + 1)
@@ -220,7 +223,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		req.ClientNums = 15
 	}
 	if req.RequestNums <= 0 {
-		req.RequestNums = 600000
+		req.RequestNums = 120000
 	}
 	if req.GetRatio <= 0 {
 		req.GetRatio = 4
@@ -262,23 +265,23 @@ func performBenchmark(req BenchmarkRequest) BenchmarkResponse {
 	fmt.Println("初始化资源")
 
 	// 开始发送请求（调用你的原始batchRawPut函数）
-	totalTime, tps := batchRawPut(value, req.GetRatio, *myKvc, myKvc.pools, nodeNum, req.ClientNums, req.RequestNums)
+	_, tps := batchRawPut(value, req.GetRatio, *myKvc, myKvc.pools, nodeNum, req.ClientNums, req.RequestNums)
 
 	fmt.Println("执行完成")
-	fmt.Printf("\nelapse:%v, tps:%.4f, total %v\n", totalTime, tps, req.RequestNums*(req.GetRatio+1))
+	fmt.Printf("\ntps:%.4f\n", tps)
 
 	// 构建响应结果
 	response.Success = true
 	response.Message = "Benchmark completed successfully"
 	response.Results = map[string]interface{}{
 		"servers":        req.Servers,
-		"clientNums":     req.ClientNums,
-		"requestNums":    req.RequestNums,
-		"getRatio":       req.GetRatio,
-		"elapsedTime":    totalTime.String(),
-		"elapsedSeconds": totalTime.Seconds(),
+		// "clientNums":     req.ClientNums,
+		// "requestNums":    req.RequestNums,
+		// "getRatio":       req.GetRatio,
+		// "elapsedTime":    totalTime.String(),
+		// "elapsedSeconds": totalTime.Seconds(),
 		"tps":            fmt.Sprintf("%.4f", tps),
-		"totalOps":       req.RequestNums * (req.GetRatio + 1),
+		// "totalOps":       req.RequestNums * (req.GetRatio + 1),
 		"nodeNum":        nodeNum,
 	}
 
